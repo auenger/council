@@ -1,0 +1,115 @@
+{
+  "name": "council-desktop",
+  "version": "0.1.0",
+  "description": "Council 群策 — 本地 AI 圆桌工作台",
+  "main": "out/main/index.js",
+  "author": "Council contributors",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview:web": "vite --config vite.preview.config.ts --host 127.0.0.1",
+    "build:web": "vite build --config vite.preview.config.ts",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "dist:linux": "npm run build && electron-builder --linux tar.gz --publish never",
+    "dist:mac": "npm run build && node scripts/package.cjs mac",
+    "dist:win": "npm run icons && npm run build && node scripts/package.cjs win --x64",
+    "postinstall": "electron-builder install-app-deps",
+    "build:offline": "npm run build:web && node scripts/make-offline-demo.mjs",
+    "test:native": "node scripts/run-native.cjs",
+    "rebuild:native": "electron-builder install-app-deps",
+    "verify": "npm run typecheck && npm test && npm run build && npm run test:native && npm run test:background",
+    "pack:mac": "npm run build && node scripts/package.cjs mac --dir",
+    "pack:win": "npm run build && node scripts/package.cjs win --dir",
+    "test:demo": "node scripts/demo-smoke.cjs",
+    "test:provider-dom": "node scripts/provider-dom-smoke.cjs",
+    "test:background": "node scripts/background-frame-check.cjs",
+    "icons": "node scripts/generate-icons.cjs",
+    "test:native-layout": "node scripts/native-layout-smoke.cjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3",
+    "markdown-it": "^15.0.3",
+    "naive-ui": "^2.43.2",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.24",
+    "vue-advanced-chat": "2.1.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.0.0",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "electron": "45.0.0",
+    "electron-builder": "26.18.0",
+    "electron-vite": "6.0.0",
+    "playwright": "^1.56.1",
+    "sharp": "^0.34.5",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.2",
+    "vitest": "^4.0.8",
+    "vue-tsc": "^3.1.4"
+  },
+  "build": {
+    "appId": "local.council.desktop",
+    "productName": "Council",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "out/**/*",
+      "package.json",
+      "LICENSE",
+      "THIRD_PARTY_NOTICES.md",
+      "licenses/**/*",
+      "README_CN.md",
+      "QA_REPORT.md"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*"
+    ],
+    "linux": {
+      "target": [
+        "tar.gz"
+      ],
+      "category": "Utility"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "hardenedRuntime": true,
+      "identity": null
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "signAndEditExecutable": true,
+      "icon": "build/icon.ico",
+      "artifactName": "Council-${version}-Windows-${arch}-Setup.${ext}"
+    },
+    "compression": "normal",
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Council 群策",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "extraResources": [
+      {
+        "from": "build/icon.png",
+        "to": "icon.png"
+      }
+    ]
+  },
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10"
+  }
+}

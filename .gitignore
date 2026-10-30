@@ -1,0 +1,12 @@
+node_modules/
+out/
+release/
+web-demo/
+*.sqlite*
+.env*
+.DS_Store
+
+.cache/
+evidence/
+source-archive/
+.collaborator

@@ -1,0 +1,8 @@
+const fs=require('node:fs'),sharp=require('sharp');
+const bubble='<path d="M452 224h120a46 46 0 0 1 46 46v100a34 34 0 0 1-34 34h-40l-32 34-32-34h-40a34 34 0 0 1-34-34V270a46 46 0 0 1 46-46Z"/>';
+const mark=`<g fill="#343536">${[0,90,180,270].map(a=>`<g transform="rotate(${a} 512 512)">${bubble}</g>`).join('')}</g><circle cx="512" cy="512" r="43" fill="#F5B544"/>`;
+const dots=[248,512,776].flatMap(x=>[248,512,776].map(y=>[x,y])).filter(([x,y])=>x!==512&&y!==512).map(([x,y])=>`<circle cx="${x}" cy="${y}" r="7" fill="#B7B3AA"/>`).join('');
+const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><rect x="64" y="64" width="896" height="896" rx="204" fill="#FAF9F5" stroke="#E7E4DD" stroke-width="3"/>${dots}${mark}</svg>`;
+fs.mkdirSync('build',{recursive:true});fs.writeFileSync('build/icon.svg',svg);
+const compact=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="176 176 672 672">${mark}</svg>`;fs.writeFileSync('src/renderer/src/assets/brand/council-mark.svg',compact);
+(async()=>{await sharp(Buffer.from(svg)).png().toFile('build/icon.png');const sizes=[16,24,32,48,64,128,256];const buffers=await Promise.all(sizes.map(s=>sharp(Buffer.from(svg)).resize(s,s).png().toBuffer()));const header=Buffer.alloc(6+16*sizes.length);header.writeUInt16LE(1,2);header.writeUInt16LE(sizes.length,4);let offset=header.length;buffers.forEach((b,i)=>{const p=6+16*i;header[p]=sizes[i]===256?0:sizes[i];header[p+1]=header[p];header.writeUInt16LE(1,p+4);header.writeUInt16LE(32,p+6);header.writeUInt32LE(b.length,p+8);header.writeUInt32LE(offset,p+12);offset+=b.length});fs.writeFileSync('build/icon.ico',Buffer.concat([header,...buffers]));console.log('Generated SVG, 1024px PNG, 7-size Windows ICO')})();
